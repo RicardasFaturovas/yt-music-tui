@@ -1040,3 +1040,31 @@
 2025/10/31 22:18:27 main.go:56: PLS
 2025/10/31 22:18:27 main.go:57: Calvin Harris - Feels (Official Video) ft. Pharrell Williams, Katy Perry, Big Sean
 2025/10/31 22:18:52 audio.go:18: Playing audio...
+2025/11/02 13:01:28 config.go:18: Loading config
+2025/11/02 13:02:29 config.go:18: Loading config
+2025/11/02 13:04:39 config.go:18: Loading config
+2025/11/02 13:04:43 main.go:60: {OG Eastbull x M.G.L. - EST (VISUAL) G1tS9NvdiHc}
+2025/11/02 13:04:43 main.go:60: { }
+2025/11/02 13:04:43 main.go:60: {GIMS - Est-ce que tu m'aimes ? (Clip officiel) 6TpyRE_juyA}
+2025/11/02 13:04:43 main.go:60: {Maître Gims - Est-ce Que Tu M'aimes ? (Lyrics) hsfDq30EZGQ}
+2025/11/02 13:04:43 main.go:60: {Mix - OG Eastbull x M.G.L. - EST (VISUAL) }
+2025/11/02 13:04:43 main.go:60: {EST Gee x Lick Back iwOvd45Xt30}
+2025/11/02 13:04:43 main.go:60: {EST Gee - Undefeated (Official Music Video) lpJ5O5Mbee4}
+2025/11/02 13:04:43 main.go:60: {EST Gee - Go PKRTYgjtfaU}
+2025/11/02 13:04:43 main.go:60: { }
+2025/11/02 13:04:43 main.go:60: {EST Gee x Opinion Based ITmVK3ZY9Ro}
+2025/11/02 13:04:43 main.go:60: {E.S.T. HTIKUqyGfNc}
+2025/11/02 13:04:43 main.go:60: {EST Gee - Take my time Geeski SH Feb 23 (Official Video) sAkkebtG3SU}
+2025/11/02 13:04:43 main.go:60: {EST Gee x 42 Dugg - Members Only Vbqs0bFv7BU}
+2025/11/02 13:04:43 main.go:60: {EST Gee - Turn The Streets Up (Official Music Video) mtojOUa0C1M}
+2025/11/02 13:04:43 main.go:60: {EST Gee - Bloody Man (Official Music Video) l78PMo3VHHk}
+2025/11/02 13:04:43 main.go:60: {EST Gee - Tug of War March17 (Official Audio) HDLgWtqccDE}
+2025/11/02 13:04:43 main.go:60: {EST Gee - RIP LU MIKE (Official Video) d3fQRERKPt4}
+2025/11/02 13:04:43 main.go:60: {EST Gee - Ball Forever [Official Music Video] T4OZY7AzOTg}
+2025/11/02 13:04:43 main.go:60: {EST Gee - 5500 Degrees (feat. Lil Baby, 42 Dugg, Rylo Rodriguez) [Official Music Video] IWm4c9u0O8c}
+2025/11/02 13:04:43 main.go:60: {EST Gee x Yo Gotti - Get Money SzYJNQJFprE}
+2025/11/02 13:06:16 config.go:18: Loading config
+2025/11/02 13:06:27 config.go:18: Loading config
+2025/11/02 13:08:07 config.go:18: Loading config
+2025/11/02 13:09:14 config.go:18: Loading config
+2025/11/02 13:10:13 audio.go:18: Playing audio...

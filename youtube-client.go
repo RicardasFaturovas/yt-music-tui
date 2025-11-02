@@ -5,6 +5,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"ricardasfaturovas/y-tui/config"
 )
 
 type SearchResult struct {
@@ -31,28 +33,11 @@ func getSearchResults(query string) []SearchResult {
 	return results
 }
 
-func getUrl(videoId string) string {
-	var result YoutubeVideo
-	err := getRequest("/api/v1/videos/"+videoId, "", &result)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, f := range result.AdaptiveFormats {
-		if len(f.Type) > 5 && f.Type[:5] == "audio" {
-			log.Println("AUDIO FORMAT FOUND")
-			return f.Url
-		}
-	}
-
-	return ""
-}
-
 // TODO: Cleanup error handling
 func getRequest(endpoint string, query string, v any) error {
 	youtubeClient := &http.Client{}
 
-	var baseUrl = getConfig().InvidiousUrl
+	var baseUrl = config.Get().InvidiousUrl
 	req, err := http.NewRequest(http.MethodGet, baseUrl+endpoint, nil)
 	if err != nil {
 		log.Fatal(err)

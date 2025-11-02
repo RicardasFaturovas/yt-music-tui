@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"ricardasfaturovas/y-tui/config"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -11,11 +12,17 @@ import (
 
 func main() {
 	setupLog()
-	loadConfig()
+	config.Load()
 	app := tview.NewApplication()
 
-	list := tview.NewList()
-	list.SetBorder(true).SetTitle("Music results")
+	root := tview.NewTreeNode("results").
+		SetColor(tcell.ColorRed)
+	tree := tview.NewTreeView().
+		SetRoot(root).
+		SetCurrentNode(root)
+
+	tree.SetBorder(true)
+	tree.SetTitle("Search results")
 
 	searhTerms := tview.NewInputField()
 	searhTerms.SetLabel("Search terms: ")
@@ -26,7 +33,7 @@ func main() {
 	searchButton.SetStyle(tcell.StyleDefault.Background(tcell.ColorNames["none"]))
 	searchButton.SetBackgroundColorActivated(tcell.ColorNames["none"])
 	searchButton.SetBorder(true)
-	searchButton.SetSelectedFunc(func() { searchYoutube(searhTerms, list) })
+	searchButton.SetSelectedFunc(func() { searchYoutube(searhTerms, root) })
 
 	searchRow := tview.NewFlex().
 		SetDirection(1).
@@ -39,7 +46,7 @@ func main() {
 	flex := tview.NewFlex().
 		SetDirection(0).
 		AddItem(searchRow, 0, 1, true).
-		AddItem(list, 0, 4, false)
+		AddItem(tree, 0, 4, false)
 
 	if err := app.SetRoot(flex, true).EnableMouse(true).EnablePaste(true).Run(); err != nil {
 		panic(err)
@@ -47,17 +54,16 @@ func main() {
 
 }
 
-func searchYoutube(searchTerms *tview.InputField, resultList *tview.List) {
-	log.Printf("SEARCHING YT")
+func searchYoutube(searchTerms *tview.InputField, resultList *tview.TreeNode) {
 	searchValue := searchTerms.GetText()
 	results := getSearchResults(searchValue)
+	resultList.ClearChildren()
 
 	for _, v := range results {
-		log.Println("PLS")
-		log.Println(v.Title)
-		resultList.AddItem(v.Title, "", 'a', func() {
-			playAudio(v.VideoId)
-		})
+		node := tview.NewTreeNode(v.Title)
+		node.SetSelectable(true)
+		node.SetSelectedFunc(func() { playAudio(v.VideoId) })
+		resultList.AddChild(node)
 	}
 }
 

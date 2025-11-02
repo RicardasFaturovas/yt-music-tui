@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"cmp"
@@ -14,7 +14,7 @@ type Config struct {
 
 var conf *Config
 
-func loadConfig() {
+func Load() {
 	log.Println("Loading config")
 	home, _ := os.UserHomeDir()
 	xdgConfHome := cmp.Or(os.Getenv("XDG_CONFIG_HOME"), home+"/.config")
@@ -31,13 +31,12 @@ func loadConfig() {
 		log.Panicln("Could not decode config file")
 
 	}
-	log.Println(c)
 	conf = &c
 }
 
-func getConfig() *Config {
+func Get() *Config {
 	if conf == nil {
-		panic("getConfig called before loadConfig()")
+		log.Panicln("getConfig called before loadConfig()")
 	}
 	return conf
 }

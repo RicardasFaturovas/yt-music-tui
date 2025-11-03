@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	"log"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -54,7 +54,7 @@ func addFocusableElements(elements ...tview.Primitive) {
 	}
 }
 
-func getNextFocus() (*tview.Primitive, error) {
+func getNextFocus() *tview.Primitive {
 	var nextFocusEl tview.Primitive
 	for i, el := range focusableElements {
 		if el.HasFocus() {
@@ -67,9 +67,27 @@ func getNextFocus() (*tview.Primitive, error) {
 
 	}
 	if nextFocusEl == nil {
-		return nil, errors.New("No focusable element found")
+		log.Panicln("Could not find next focus element")
 	}
-	return &nextFocusEl, nil
+	return &nextFocusEl
+}
+
+func getPreviousFocus() *tview.Primitive {
+	var previousFocusEl tview.Primitive
+	for i, el := range focusableElements {
+		if el.HasFocus() {
+			if i == 0 {
+				previousFocusEl = focusableElements[len(focusableElements)-1]
+			} else {
+				previousFocusEl = focusableElements[i-1]
+			}
+		}
+
+	}
+	if previousFocusEl == nil {
+		log.Panicln("Could not find previous focus element")
+	}
+	return &previousFocusEl
 }
 
 func searchYoutube(searchTerms *tview.InputField, resultList *tview.TreeNode) {

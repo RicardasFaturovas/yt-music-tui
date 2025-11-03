@@ -19,10 +19,11 @@ func main() {
 	searchLayout.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyCtrlN:
-			nextFocusEl, _ := getNextFocus()
+			nextFocusEl := getNextFocus()
 			app.SetFocus(*nextFocusEl)
 		case tcell.KeyCtrlP:
-			return nil
+			previousFocusEl := getPreviousFocus()
+			app.SetFocus(*previousFocusEl)
 		}
 		return event
 	})

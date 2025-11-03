@@ -1,0 +1,86 @@
+package main
+
+import (
+	"errors"
+
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
+)
+
+var focusableElements []tview.Primitive
+
+func buildSearchLayout() *tview.Flex {
+	root := tview.NewTreeNode("").
+		SetColor(tcell.ColorRed)
+	searchResults := tview.NewTreeView().
+		SetRoot(root).
+		SetCurrentNode(root)
+
+	searchResults.SetBorder(true)
+	searchResults.SetBackgroundColor(tcell.ColorNames["none"])
+	searchResults.SetTitle("Search results")
+
+	searhTerms := tview.NewInputField()
+	searhTerms.SetLabel("Search terms: ")
+	searhTerms.SetFieldBackgroundColor(tcell.ColorNames["none"])
+	searhTerms.SetBorder(true)
+
+	searchButton := tview.NewButton("Search")
+	searchButton.SetStyle(tcell.StyleDefault.Background(tcell.ColorNames["none"]))
+	searchButton.SetBackgroundColorActivated(tcell.ColorNames["none"])
+	searchButton.SetBorder(true)
+	searchButton.SetSelectedFunc(func() { searchYoutube(searhTerms, root) })
+
+	searchRow := tview.NewFlex().
+		SetDirection(1).
+		AddItem(searhTerms, 0, 5, true).
+		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorNames["none"]), 0, 1, false).
+		AddItem(searchButton, 0, 2, false)
+	searchRow.SetBorder(true)
+	searchRow.SetBorderPadding(2, 2, 1, 1)
+
+	flex := tview.NewFlex().
+		SetDirection(0).
+		AddItem(searchRow, 0, 1, true).
+		AddItem(searchResults, 0, 4, false)
+
+	addFocusableElements(searhTerms, searchButton, searchResults)
+	return flex
+}
+
+func addFocusableElements(elements ...tview.Primitive) {
+	for _, el := range elements {
+		focusableElements = append(focusableElements, el)
+	}
+}
+
+func getNextFocus() (*tview.Primitive, error) {
+	var nextFocusEl tview.Primitive
+	for i, el := range focusableElements {
+		if el.HasFocus() {
+			if i == len(focusableElements)-1 {
+				nextFocusEl = focusableElements[0]
+			} else {
+				nextFocusEl = focusableElements[i+1]
+			}
+		}
+
+	}
+	if nextFocusEl == nil {
+		return nil, errors.New("No focusable element found")
+	}
+	return &nextFocusEl, nil
+}
+
+func searchYoutube(searchTerms *tview.InputField, resultList *tview.TreeNode) {
+	searchValue := searchTerms.GetText()
+	results := getSearchResults(searchValue)
+	resultList.ClearChildren()
+
+	for _, v := range results {
+		node := tview.NewTreeNode(v.Title)
+		node.SetSelectable(true)
+		node.SetSelectedFunc(func() { playAudio(v.VideoId) })
+		resultList.AddChild(node)
+	}
+}

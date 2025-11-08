@@ -14,6 +14,7 @@ func main() {
 	setupLog()
 	config.Load()
 	app := tview.NewApplication()
+	tview.Styles.PrimitiveBackgroundColor = tcell.ColorNames["none"]
 	searchLayout := buildSearchLayout()
 
 	searchLayout.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {

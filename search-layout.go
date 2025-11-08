@@ -17,34 +17,34 @@ func buildSearchLayout() *tview.Flex {
 		SetCurrentNode(root)
 
 	searchResults.SetBorder(true)
-	searchResults.SetBackgroundColor(tcell.ColorNames["none"])
 	searchResults.SetTitle("Search results")
 
-	searhTerms := tview.NewInputField()
-	searhTerms.SetLabel("Search terms: ")
-	searhTerms.SetFieldBackgroundColor(tcell.ColorNames["none"])
-	searhTerms.SetBorder(true)
+	searchTerms := tview.NewInputField()
+	searchTerms.SetLabel("Search terms: ")
+	searchTerms.SetFieldBackgroundColor(tcell.ColorNames["none"])
+	searchTerms.SetBorder(true)
 
 	searchButton := tview.NewButton("Search")
 	searchButton.SetStyle(tcell.StyleDefault.Background(tcell.ColorNames["none"]))
 	searchButton.SetBackgroundColorActivated(tcell.ColorNames["none"])
 	searchButton.SetBorder(true)
-	searchButton.SetSelectedFunc(func() { searchYoutube(searhTerms, root) })
+	searchButton.SetSelectedFunc(func() { searchYoutube(searchTerms, root) })
 
 	searchRow := tview.NewFlex().
 		SetDirection(1).
-		AddItem(searhTerms, 0, 5, true).
-		AddItem(tview.NewBox().SetBackgroundColor(tcell.ColorNames["none"]), 0, 1, false).
+		AddItem(searchTerms, 0, 5, true).
+		AddItem(tview.NewBox(), 0, 1, false).
 		AddItem(searchButton, 0, 2, false)
 	searchRow.SetBorder(true)
 	searchRow.SetBorderPadding(2, 2, 1, 1)
+	searchRow.SetTitle("Search youtube")
 
 	flex := tview.NewFlex().
 		SetDirection(0).
 		AddItem(searchRow, 0, 1, true).
 		AddItem(searchResults, 0, 4, false)
 
-	addFocusableElements(searhTerms, searchButton, searchResults)
+	addFocusableElements(searchTerms, searchButton, searchResults)
 	return flex
 }
 

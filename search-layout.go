@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
+	"os"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -111,9 +113,24 @@ func searchYoutube(searchTerms *tview.InputField, resultList *tview.TreeNode) {
 			playNode.SetSelectedFunc(func() { playAudio(v.VideoId) })
 
 			playlistNode := tview.NewTreeNode("Add to playlist")
+			playlistNode.SetSelectedFunc(func() { addToPlaylist(v) })
+
 			songNode.AddChild(playNode)
 			songNode.AddChild(playlistNode)
 			resultList.AddChild(songNode)
 		}
 	}
+}
+
+func addToPlaylist(song YoutubeVideo) {
+	f, err := os.Create("playlist.json")
+	if err != nil {
+		log.Panicln(err)
+	}
+	defer f.Close()
+	as_json, err := json.MarshalIndent(song, "", "\t")
+	if err != nil {
+		log.Panicln(err)
+	}
+	f.Write(as_json)
 }

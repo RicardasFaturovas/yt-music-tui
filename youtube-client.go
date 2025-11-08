@@ -9,13 +9,9 @@ import (
 	"ricardasfaturovas/y-tui/config"
 )
 
-type SearchResult struct {
+type YoutubeVideo struct {
 	Title   string `json:"title"`
 	VideoId string `json:"videoId"`
-}
-
-type YoutubeVideo struct {
-	AdaptiveFormats []AdaptiveFormat `json:"adaptiveFormats"`
 }
 
 type AdaptiveFormat struct {
@@ -23,8 +19,8 @@ type AdaptiveFormat struct {
 	Type string `json:"type"`
 }
 
-func getSearchResults(query string) []SearchResult {
-	var results []SearchResult
+func getSearchResults(query string) []YoutubeVideo {
+	var results []YoutubeVideo
 	err := getRequest("/api/v1/search", query, &results)
 	if err != nil {
 		log.Fatal(err)

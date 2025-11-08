@@ -123,14 +123,14 @@ func searchYoutube(searchTerms *tview.InputField, resultList *tview.TreeNode) {
 }
 
 func addToPlaylist(song YoutubeVideo) {
-	f, err := os.Create("playlist.json")
+	f, err := os.OpenFile("a.playlist", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Panicln(err)
 	}
 	defer f.Close()
-	as_json, err := json.MarshalIndent(song, "", "\t")
-	if err != nil {
+
+	enc := json.NewEncoder(f)
+	if err := enc.Encode(song); err != nil {
 		log.Panicln(err)
 	}
-	f.Write(as_json)
 }

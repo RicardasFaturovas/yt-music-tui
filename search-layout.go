@@ -10,8 +10,8 @@ import (
 var focusableElements []tview.Primitive
 
 func buildSearchLayout() *tview.Flex {
-	root := tview.NewTreeNode("").
-		SetColor(tcell.ColorRed)
+	root := tview.NewTreeNode(".").
+		SetColor(tcell.ColorNames["none"])
 	searchResults := tview.NewTreeView().
 		SetRoot(root).
 		SetCurrentNode(root)
@@ -96,9 +96,24 @@ func searchYoutube(searchTerms *tview.InputField, resultList *tview.TreeNode) {
 	resultList.ClearChildren()
 
 	for _, v := range results {
-		node := tview.NewTreeNode(v.Title)
-		node.SetSelectable(true)
-		node.SetSelectedFunc(func() { playAudio(v.VideoId) })
-		resultList.AddChild(node)
+		if v.Title != "" {
+			songNode := tview.NewTreeNode(v.Title)
+			songNode.SetExpanded(false)
+
+			songNode.SetSelectedFunc(func() {
+				resultList.CollapseAll()
+				resultList.Expand()
+				songNode.SetExpanded(!songNode.IsExpanded())
+			})
+
+			playNode := tview.NewTreeNode("Play")
+			playNode.SetSelectable(true)
+			playNode.SetSelectedFunc(func() { playAudio(v.VideoId) })
+
+			playlistNode := tview.NewTreeNode("Add to playlist")
+			songNode.AddChild(playNode)
+			songNode.AddChild(playlistNode)
+			resultList.AddChild(songNode)
+		}
 	}
 }

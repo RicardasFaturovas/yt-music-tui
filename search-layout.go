@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"path/filepath"
+	"ricardasfaturovas/y-tui/config"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -113,7 +115,7 @@ func searchYoutube(searchTerms *tview.InputField, resultList *tview.TreeNode) {
 			playNode.SetSelectedFunc(func() { playAudio(v.VideoId) })
 
 			playlistNode := tview.NewTreeNode("Add to playlist")
-			playlistNode.SetSelectedFunc(func() { addToPlaylist(v) })
+			playlistNode.SetSelectedFunc(func() { loadPlaylists(playlistNode, v) })
 
 			songNode.AddChild(playNode)
 			songNode.AddChild(playlistNode)
@@ -122,8 +124,32 @@ func searchYoutube(searchTerms *tview.InputField, resultList *tview.TreeNode) {
 	}
 }
 
-func addToPlaylist(song YoutubeVideo) {
-	f, err := os.OpenFile("a.playlist", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+func loadPlaylists(target *tview.TreeNode, song YoutubeVideo) {
+	// TODO: Need to figure out better directory management
+	home, _ := os.UserHomeDir()
+	playlistPath := home + "/" + config.Get().PlaylistPath
+
+	if len(target.GetChildren()) == 0 {
+		files, err := os.ReadDir(playlistPath)
+		if err != nil {
+			panic(err)
+		}
+		for _, file := range files {
+			if !file.IsDir() && filepath.Ext(file.Name()) == ".playlist" {
+				node := tview.NewTreeNode(file.Name()).
+					SetSelectable(true)
+
+				node.SetSelectedFunc(func() { addToPlaylist(song, filepath.Join(playlistPath, file.Name())) })
+				target.AddChild(node)
+			}
+		}
+	}
+	target.SetExpanded(!target.IsExpanded())
+
+}
+
+func addToPlaylist(song YoutubeVideo, playlistPath string) {
+	f, err := os.OpenFile(playlistPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Panicln(err)
 	}

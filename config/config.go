@@ -10,6 +10,7 @@ import (
 
 type Config struct {
 	InvidiousUrl string `toml:"baseUrl"`
+	PlaylistPath string `toml:"playlistPath"`
 }
 
 var conf *Config

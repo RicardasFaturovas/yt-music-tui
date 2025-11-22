@@ -16,5 +16,4 @@ func playAudio(videoId string) {
 	}
 
 	log.Println("Playing audio...")
-	cmd.Wait()
 }

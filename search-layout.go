@@ -110,13 +110,29 @@ func loadPlaylists(target *tview.TreeNode, song YoutubeVideo) {
 
 	createPlaylistNode := tview.NewTreeNode("Create new playlist")
 	createPlaylistNode.SetSelectable(true)
+	createPlaylistNode.SetSelectedFunc(func() { createPlaylistPopup(song, playlistPath) })
 
 	target.AddChild(createPlaylistNode)
 	target.SetExpanded(!target.IsExpanded())
 }
 
-func createPlaylist() {
+func createPlaylistPopup(song YoutubeVideo, playlistPath string) {
+	playlistNameInput := newPlaylistPopup()
+	playlistNameInput.SetDoneFunc(func(key tcell.Key) {
+		switch key {
+		case tcell.KeyEnter:
+			playListName := playlistNameInput.GetText()
+			addToNewPlaylist(song, playListName, playlistPath)
+			oto.pages.RemovePage("new-playlist")
+		case tcell.KeyEsc:
+			oto.pages.RemovePage("new-playlist")
+		}
 
+	})
+}
+
+func addToNewPlaylist(song YoutubeVideo, playlistName string, playlistPath string) {
+	addToPlaylist(song, filepath.Join(playlistPath, playlistName+".playlist"))
 }
 
 func addToPlaylist(song YoutubeVideo, playlistPath string) {
@@ -130,4 +146,20 @@ func addToPlaylist(song YoutubeVideo, playlistPath string) {
 	if err := enc.Encode(song); err != nil {
 		log.Panicln(err)
 	}
+}
+
+func newPlaylistPopup() *tview.InputField {
+	inputField := tview.NewInputField().
+		SetLabel("New playlist").
+		SetFieldWidth(0).
+		SetAcceptanceFunc(tview.InputFieldMaxLength(50))
+
+	inputField.SetTitle("New playlist").
+		SetBorder(true).
+		SetBorderPadding(1, 0, 2, 2)
+
+	oto.pages.
+		AddPage("new-playlist", center(inputField, 60, 5), true, true)
+
+	return inputField
 }

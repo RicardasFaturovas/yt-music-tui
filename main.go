@@ -13,10 +13,10 @@ import (
 func main() {
 	setupLog()
 	config.Load()
-	app := tview.NewApplication()
-	oto = createOto(app)
 
 	tview.Styles.PrimitiveBackgroundColor = tcell.ColorNames["none"]
+	app := tview.NewApplication()
+	oto = createOto(app)
 
 	if err := app.SetRoot(oto.pages, true).EnableMouse(true).EnablePaste(true).Run(); err != nil {
 		panic(err)

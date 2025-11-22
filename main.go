@@ -14,21 +14,11 @@ func main() {
 	setupLog()
 	config.Load()
 	app := tview.NewApplication()
-	tview.Styles.PrimitiveBackgroundColor = tcell.ColorNames["none"]
-	searchLayout := buildSearchLayout()
+	oto = createOto(app)
 
-	searchLayout.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case tcell.KeyCtrlN:
-			nextFocusEl := getNextFocus()
-			app.SetFocus(*nextFocusEl)
-		case tcell.KeyCtrlP:
-			previousFocusEl := getPreviousFocus()
-			app.SetFocus(*previousFocusEl)
-		}
-		return event
-	})
-	if err := app.SetRoot(searchLayout, true).EnableMouse(true).EnablePaste(true).Run(); err != nil {
+	tview.Styles.PrimitiveBackgroundColor = tcell.ColorNames["none"]
+
+	if err := app.SetRoot(oto.pages, true).EnableMouse(true).EnablePaste(true).Run(); err != nil {
 		panic(err)
 	}
 }
@@ -43,4 +33,14 @@ func setupLog() {
 
 	log.SetOutput(file)
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+}
+
+func center(p tview.Primitive, width, height int) tview.Primitive {
+	return tview.NewFlex().
+		AddItem(nil, 0, 1, false).
+		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
+			AddItem(nil, 0, 1, false).
+			AddItem(p, height, 1, false).
+			AddItem(nil, 0, 1, false), width, 1, false).
+		AddItem(nil, 0, 1, false)
 }

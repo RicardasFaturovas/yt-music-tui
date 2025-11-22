@@ -58,42 +58,6 @@ func addFocusableElements(elements ...tview.Primitive) {
 	}
 }
 
-func getNextFocus() *tview.Primitive {
-	var nextFocusEl tview.Primitive
-	for i, el := range focusableElements {
-		if el.HasFocus() {
-			if i == len(focusableElements)-1 {
-				nextFocusEl = focusableElements[0]
-			} else {
-				nextFocusEl = focusableElements[i+1]
-			}
-		}
-
-	}
-	if nextFocusEl == nil {
-		log.Panicln("Could not find next focus element")
-	}
-	return &nextFocusEl
-}
-
-func getPreviousFocus() *tview.Primitive {
-	var previousFocusEl tview.Primitive
-	for i, el := range focusableElements {
-		if el.HasFocus() {
-			if i == 0 {
-				previousFocusEl = focusableElements[len(focusableElements)-1]
-			} else {
-				previousFocusEl = focusableElements[i-1]
-			}
-		}
-
-	}
-	if previousFocusEl == nil {
-		log.Panicln("Could not find previous focus element")
-	}
-	return &previousFocusEl
-}
-
 func searchYoutube(searchTerms *tview.InputField, resultList *tview.TreeNode) {
 	searchValue := searchTerms.GetText()
 	results := getSearchResults(searchValue)
@@ -129,22 +93,29 @@ func loadPlaylists(target *tview.TreeNode, song YoutubeVideo) {
 	home, _ := os.UserHomeDir()
 	playlistPath := home + "/" + config.Get().PlaylistPath
 
-	if len(target.GetChildren()) == 0 {
-		files, err := os.ReadDir(playlistPath)
-		if err != nil {
-			panic(err)
-		}
-		for _, file := range files {
-			if !file.IsDir() && filepath.Ext(file.Name()) == ".playlist" {
-				node := tview.NewTreeNode(file.Name()).
-					SetSelectable(true)
+	target.ClearChildren()
+	files, err := os.ReadDir(playlistPath)
+	if err != nil {
+		panic(err)
+	}
+	for _, file := range files {
+		if !file.IsDir() && filepath.Ext(file.Name()) == ".playlist" {
+			node := tview.NewTreeNode(file.Name()).
+				SetSelectable(true)
 
-				node.SetSelectedFunc(func() { addToPlaylist(song, filepath.Join(playlistPath, file.Name())) })
-				target.AddChild(node)
-			}
+			node.SetSelectedFunc(func() { addToPlaylist(song, filepath.Join(playlistPath, file.Name())) })
+			target.AddChild(node)
 		}
 	}
+
+	createPlaylistNode := tview.NewTreeNode("Create new playlist")
+	createPlaylistNode.SetSelectable(true)
+
+	target.AddChild(createPlaylistNode)
 	target.SetExpanded(!target.IsExpanded())
+}
+
+func createPlaylist() {
 
 }
 

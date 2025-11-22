@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"ricardasfaturovas/y-tui/config"
+	"ricardasfaturovas/oto-tui/config"
 )
 
 type YoutubeVideo struct {

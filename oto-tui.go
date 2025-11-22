@@ -16,7 +16,6 @@ func createOto(app *tview.Application) *Oto {
 	}
 
 	searchLayout := buildSearchLayout()
-	searchLayout.SetInputCapture(focusInputCaptureCallback)
 	newOto.pages.AddAndSwitchToPage("search", searchLayout, true)
 
 	return newOto

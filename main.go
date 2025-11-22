@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 	"path"
-	"ricardasfaturovas/y-tui/config"
+	"ricardasfaturovas/oto-tui/config"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"

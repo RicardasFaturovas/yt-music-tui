@@ -7,7 +7,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func getNextFocus() *tview.Primitive {
+func getNextFocus(focusableElements []tview.Primitive) *tview.Primitive {
 	var nextFocusEl tview.Primitive
 	for i, el := range focusableElements {
 		if el.HasFocus() {
@@ -25,7 +25,7 @@ func getNextFocus() *tview.Primitive {
 	return &nextFocusEl
 }
 
-func getPreviousFocus() *tview.Primitive {
+func getPreviousFocus(focusableElements []tview.Primitive) *tview.Primitive {
 	var previousFocusEl tview.Primitive
 	for i, el := range focusableElements {
 		if el.HasFocus() {
@@ -43,13 +43,13 @@ func getPreviousFocus() *tview.Primitive {
 	return &previousFocusEl
 }
 
-func focusInputCaptureCallback(event *tcell.EventKey) *tcell.EventKey {
+func focusInputCaptureCallback(event *tcell.EventKey, focusableElements []tview.Primitive) *tcell.EventKey {
 	switch event.Key() {
 	case tcell.KeyCtrlN:
-		nextFocusEl := getNextFocus()
+		nextFocusEl := getNextFocus(focusableElements)
 		oto.app.SetFocus(*nextFocusEl)
 	case tcell.KeyCtrlP:
-		previousFocusEl := getPreviousFocus()
+		previousFocusEl := getPreviousFocus(focusableElements)
 		oto.app.SetFocus(*previousFocusEl)
 	}
 	return event

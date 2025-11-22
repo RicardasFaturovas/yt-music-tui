@@ -5,13 +5,11 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"ricardasfaturovas/y-tui/config"
+	"ricardasfaturovas/oto-tui/config"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
-
-var focusableElements []tview.Primitive
 
 func buildSearchLayout() *tview.Flex {
 	root := tview.NewTreeNode(".").
@@ -48,14 +46,20 @@ func buildSearchLayout() *tview.Flex {
 		AddItem(searchRow, 0, 1, true).
 		AddItem(searchResults, 0, 4, false)
 
-	addFocusableElements(searchTerms, searchButton, searchResults)
+	focusableElements := addFocusableElements(searchTerms, searchButton, searchResults)
+
+	flex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		return focusInputCaptureCallback(event, focusableElements)
+	})
 	return flex
 }
 
-func addFocusableElements(elements ...tview.Primitive) {
+func addFocusableElements(elements ...tview.Primitive) []tview.Primitive {
+	var focusableElements []tview.Primitive
 	for _, el := range elements {
 		focusableElements = append(focusableElements, el)
 	}
+	return focusableElements
 }
 
 func searchYoutube(searchTerms *tview.InputField, resultList *tview.TreeNode) {
@@ -122,17 +126,13 @@ func createPlaylistPopup(song YoutubeVideo, playlistPath string) {
 		switch key {
 		case tcell.KeyEnter:
 			playListName := playlistNameInput.GetText()
-			addToNewPlaylist(song, playListName, playlistPath)
+			addToPlaylist(song, filepath.Join(playlistPath, playListName+".playlist"))
 			oto.pages.RemovePage("new-playlist")
 		case tcell.KeyEsc:
 			oto.pages.RemovePage("new-playlist")
 		}
 
 	})
-}
-
-func addToNewPlaylist(song YoutubeVideo, playlistName string, playlistPath string) {
-	addToPlaylist(song, filepath.Join(playlistPath, playlistName+".playlist"))
 }
 
 func addToPlaylist(song YoutubeVideo, playlistPath string) {

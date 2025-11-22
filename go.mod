@@ -1,4 +1,4 @@
-module ricardasfaturovas/y-tui
+module ricardasfaturovas/oto-tui
 
 go 1.25.3
 

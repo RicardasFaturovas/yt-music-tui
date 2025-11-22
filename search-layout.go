@@ -157,9 +157,9 @@ func newPlaylistPopup() *tview.InputField {
 	inputField.SetTitle("New playlist").
 		SetBorder(true).
 		SetBorderPadding(1, 0, 2, 2)
-
-	oto.pages.
-		AddPage("new-playlist", center(inputField, 60, 5), true, true)
+	popup := center(inputField, 60, 5)
+	oto.pages.AddPage("new-playlist", popup, true, true)
+	oto.app.SetFocus(inputField)
 
 	return inputField
 }

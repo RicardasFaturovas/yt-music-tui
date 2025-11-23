@@ -3,17 +3,34 @@ package main
 import (
 	"log"
 	"os/exec"
+
+	"github.com/blang/mpv"
 )
 
 func playAudio(videoId string) {
 	audioURL := "https://www.youtube.com/watch?v=" + videoId
-	cmd := exec.Command("mpv", "--no-video", "--quiet", audioURL)
-	cmd.Stdout = nil
-	cmd.Stderr = nil
 
-	if err := cmd.Start(); err != nil {
-		log.Fatal(err)
+	oto.mpv.Loadfile(audioURL, mpv.LoadFileModeReplace)
+}
+
+func togglePause(shouldPause bool) {
+	oto.mpv.SetPause(shouldPause)
+}
+
+func createMpvClient() *mpv.Client {
+	launchMpvCmd := exec.Command("mpv", "--input-ipc-server=/tmp/mpvsocket", "--idle")
+	launchMpvCmd.Stdout = nil
+	launchMpvCmd.Stderr = nil
+
+	if err := launchMpvCmd.Start(); err != nil {
+		log.Panicln("Error launching mpv: ", err)
 	}
 
-	log.Println("Playing audio...")
+	ipcc := mpv.NewIPCClient("/tmp/mpvsocket")
+	c := mpv.NewClient(ipcc)
+
+	if err := c.SetProperty("vo", "null"); err != nil {
+		log.Fatalf("failed to set vo: %v", err)
+	}
+	return c
 }

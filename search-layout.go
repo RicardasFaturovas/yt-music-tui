@@ -80,7 +80,14 @@ func searchYoutube(searchTerms *tview.InputField, resultList *tview.TreeNode) {
 
 			playNode := tview.NewTreeNode("Play")
 			playNode.SetSelectable(true)
-			playNode.SetSelectedFunc(func() { playAudio(v.VideoId) })
+			playNode.SetSelectedFunc(func() {
+				playAudio(v.VideoId)
+				isPaused := false
+				playNode.SetSelectedFunc(func() {
+					isPaused = !isPaused
+					togglePause(isPaused)
+				})
+			})
 
 			playlistNode := tview.NewTreeNode("Add to playlist")
 			playlistNode.SetSelectedFunc(func() { loadPlaylists(playlistNode, v) })

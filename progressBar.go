@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"strings"
 	"time"
 
@@ -43,6 +44,7 @@ func buildProgressBar() *ProgressBar {
 }
 
 func updateBar() {
+	time.Sleep(1 * time.Second)
 	for {
 		_, idleErr := oto.mpv.client.Idle()
 		isPaused, pauseErr := oto.mpv.client.Pause()
@@ -59,16 +61,30 @@ func updateBar() {
 			time.Sleep(1 * time.Second)
 			continue
 		}
-		currentProgress, positionErr := oto.mpv.client.Position()
-		if positionErr != nil {
+		currentProgress, err := oto.mpv.client.Position()
+		if err != nil {
 			log.Println("Error getting position")
 		}
 
-		log.Println(currentProgress)
+		duration, err := oto.mpv.client.Duration()
+		if err != nil {
+			log.Println("Error getting duration")
+		}
+
+		percent, err := oto.mpv.client.PercentPosition()
+		if err != nil {
+			log.Println("Error getting position")
+		}
+
+		_, _, width, _ := oto.progressBar.container.GetRect()
+		elapsedTime := time.Duration(currentProgress * float64(time.Second))
+		timeLeft := time.Duration((duration - currentProgress) * float64(time.Second))
+		currentPosition := int(math.Round(percent / 100 * float64(width/2)))
+
+		fill := fmtProgress(currentPosition, width/2)
 
 		oto.app.QueueUpdateDraw(func() {
-			duration := time.Duration(currentProgress * float64(time.Second))
-			oto.progressBar.bar.SetText(fmt.Sprintf(fmtDuration(duration)))
+			oto.progressBar.bar.SetText(fmt.Sprintf("%s %s %s", fmtDuration(elapsedTime), fill, fmtDuration(timeLeft)))
 		})
 
 		<-time.After(time.Second)
@@ -83,4 +99,12 @@ func fmtDuration(d time.Duration) string {
 	d -= m * time.Minute
 	s := d / time.Second
 	return fmt.Sprintf("%02d:%02d:%02d", h, m, s)
+}
+
+func fmtProgress(currentPostion int, length int) string {
+	return fmt.Sprintf("%s%s%s",
+		strings.Repeat("━", currentPostion),
+		"I",
+		strings.Repeat("━", length-currentPostion),
+	)
 }

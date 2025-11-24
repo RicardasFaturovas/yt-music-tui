@@ -43,31 +43,27 @@ func buildProgressBar() *ProgressBar {
 	return &progressBar
 }
 
-func updateBar() {
-	time.Sleep(1 * time.Second)
+func updateBar(songName string) {
+	oto.progressBar.currentSong.SetText(songName)
+
 	for {
-		_, idleErr := oto.mpv.client.Idle()
+		playlistCount, _ := oto.mpv.client.GetFloatProperty("playlist-playing-pos")
 		isPaused, pauseErr := oto.mpv.client.Pause()
-
-		if idleErr != nil || pauseErr != nil {
-			log.Panicln("Error getting mpv idle/paused status")
+		if pauseErr != nil {
+			log.Println("Error getting pause/idle")
 		}
-
-		// if isIdle {
-		// 	break
-		// }
-		//
 		if isPaused {
 			time.Sleep(1 * time.Second)
 			continue
 		}
-		currentProgress, err := oto.mpv.client.Position()
-		if err != nil {
+
+		currentProgress, positionErr := oto.mpv.client.Position()
+		if positionErr != nil {
 			log.Println("Error getting position")
 		}
 
-		duration, err := oto.mpv.client.Duration()
-		if err != nil {
+		duration, durationErr := oto.mpv.client.Duration()
+		if durationErr != nil {
 			log.Println("Error getting duration")
 		}
 
@@ -79,13 +75,19 @@ func updateBar() {
 		_, _, width, _ := oto.progressBar.container.GetRect()
 		elapsedTime := time.Duration(currentProgress * float64(time.Second))
 		timeLeft := time.Duration((duration - currentProgress) * float64(time.Second))
+
 		currentPosition := int(math.Round(percent / 100 * float64(width/2)))
 
 		fill := fmtProgress(currentPosition, width/2)
 
 		oto.app.QueueUpdateDraw(func() {
-			oto.progressBar.bar.SetText(fmt.Sprintf("%s %s %s", fmtDuration(elapsedTime), fill, fmtDuration(timeLeft)))
+			oto.progressBar.bar.SetText(fmt.Sprintf("%s |%s| %s", fmtDuration(elapsedTime), fill, fmtDuration(timeLeft)))
 		})
+
+		if playlistCount < 0 {
+			log.Println("IDLE Turning off")
+			break
+		}
 
 		<-time.After(time.Second)
 	}

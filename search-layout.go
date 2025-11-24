@@ -82,7 +82,7 @@ func searchYoutube(searchTerms *tview.InputField, resultList *tview.TreeNode) {
 			playNode.SetSelectable(true)
 			playNode.SetSelectedFunc(func() {
 				playAudio(v.VideoId)
-				go updateBar()
+				go updateBar(v.Title)
 				isPaused := false
 				playNode.SetSelectedFunc(func() {
 					isPaused = !isPaused

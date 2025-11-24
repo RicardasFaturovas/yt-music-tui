@@ -35,7 +35,7 @@ func createMpvClient() *MPV {
 
 	socketPath := "/tmp/mpv-socket"
 
-	for i := 0; i < 50; i++ {
+	for range 50 {
 		if _, err := os.Stat(socketPath); err == nil {
 			break
 		}

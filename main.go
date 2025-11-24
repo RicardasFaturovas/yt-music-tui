@@ -22,7 +22,7 @@ func main() {
 
 	root := tview.NewFlex().
 		SetDirection(0).
-		AddItem(oto.pages, 0, 10, false).
+		AddItem(oto.pages, 0, 10, true).
 		AddItem(oto.progressBar.container, 0, 1, false)
 	defer func() {
 		if oto.mpv.launchCmd.Process != nil {

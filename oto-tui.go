@@ -1,23 +1,24 @@
 package main
 
 import (
-	"github.com/blang/mpv"
 	"github.com/rivo/tview"
 )
 
 type Oto struct {
-	app   *tview.Application
-	pages *tview.Pages
-	mpv   *mpv.Client
+	app         *tview.Application
+	pages       *tview.Pages
+	mpv         *MPV
+	progressBar *ProgressBar
 }
 
 var oto *Oto
 
 func createOto(app *tview.Application) *Oto {
 	newOto := &Oto{
-		app:   app,
-		pages: tview.NewPages(),
-		mpv:   createMpvClient(),
+		app:         app,
+		pages:       tview.NewPages(),
+		mpv:         createMpvClient(),
+		progressBar: buildProgressBar(),
 	}
 
 	searchLayout := buildSearchLayout()

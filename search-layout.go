@@ -43,8 +43,8 @@ func buildSearchLayout() *tview.Flex {
 
 	flex := tview.NewFlex().
 		SetDirection(0).
-		AddItem(searchRow, 0, 1, true).
-		AddItem(searchResults, 0, 4, false)
+		AddItem(searchRow, 0, 2, true).
+		AddItem(searchResults, 0, 7, false)
 
 	focusableElements := addFocusableElements(searchTerms, searchButton, searchResults)
 
@@ -82,6 +82,7 @@ func searchYoutube(searchTerms *tview.InputField, resultList *tview.TreeNode) {
 			playNode.SetSelectable(true)
 			playNode.SetSelectedFunc(func() {
 				playAudio(v.VideoId)
+				go updateBar()
 				isPaused := false
 				playNode.SetSelectedFunc(func() {
 					isPaused = !isPaused

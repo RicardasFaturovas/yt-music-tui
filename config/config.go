@@ -13,9 +13,7 @@ type Config struct {
 	PlaylistPath string `toml:"playlistPath"`
 }
 
-var conf *Config
-
-func Load() {
+func NewConfig() *Config {
 	log.Println("Loading config")
 	home, _ := os.UserHomeDir()
 	xdgConfHome := cmp.Or(os.Getenv("XDG_CONFIG_HOME"), home+"/.config")
@@ -32,12 +30,6 @@ func Load() {
 		log.Panicln("Could not decode config file")
 
 	}
-	conf = &c
-}
 
-func Get() *Config {
-	if conf == nil {
-		log.Panicln("getConfig called before loadConfig()")
-	}
-	return conf
+	return &c
 }

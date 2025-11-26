@@ -62,10 +62,12 @@ func (m *MPV) PlaySong(videoId string) {
 	audioURL := "https://www.youtube.com/watch?v=" + videoId
 
 	m.client.Loadfile(audioURL, mpv.LoadFileModeReplace)
+	m.client.SetPause(false)
 }
 
-func (m *MPV) TogglePause(shouldPause bool) {
-	m.client.SetPause(shouldPause)
+func (m *MPV) TogglePause() {
+	p, _ := m.client.Pause()
+	m.client.SetPause(!p)
 }
 
 func (m *MPV) GetCurrentSong() (string, error) {

@@ -5,23 +5,30 @@ import (
 	"io"
 	"log"
 	"net/http"
-
-	"ricardasfaturovas/oto-tui/config"
 )
 
-type YoutubeVideo struct {
+type YoutubeSong struct {
 	Title   string `json:"title"`
 	VideoId string `json:"videoId"`
 }
 
-type AdaptiveFormat struct {
-	Url  string `json:"url"`
-	Type string `json:"type"`
+type YoutubeClient struct {
+	client  *http.Client
+	baseUrl string
 }
 
-func getSearchResults(query string) []YoutubeVideo {
-	var results []YoutubeVideo
-	err := getRequest("/api/v1/search", query, &results)
+func NewYoutubeClient(baseUrl string) *YoutubeClient {
+	youtubeClient := &http.Client{}
+
+	return &YoutubeClient{
+		youtubeClient,
+		baseUrl,
+	}
+}
+
+func (y *YoutubeClient) GetSearchResults(query string) []YoutubeSong {
+	var results []YoutubeSong
+	err := y.getRequest("/api/v1/search", query, &results)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,11 +37,8 @@ func getSearchResults(query string) []YoutubeVideo {
 }
 
 // TODO: Cleanup error handling
-func getRequest(endpoint string, query string, v any) error {
-	youtubeClient := &http.Client{}
-
-	var baseUrl = config.Get().InvidiousUrl
-	req, err := http.NewRequest(http.MethodGet, baseUrl+endpoint, nil)
+func (y *YoutubeClient) getRequest(endpoint string, query string, v any) error {
+	req, err := http.NewRequest(http.MethodGet, y.baseUrl+endpoint, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,7 +46,7 @@ func getRequest(endpoint string, query string, v any) error {
 	q := req.URL.Query()
 	q.Add("q", query)
 	req.URL.RawQuery = q.Encode()
-	res, getErr := youtubeClient.Do(req)
+	res, getErr := y.client.Do(req)
 	if getErr != nil {
 		log.Fatal(getErr)
 	}

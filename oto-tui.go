@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/rivo/tview"
+	"ricardasfaturovas/oto-tui/config"
 )
 
 type Oto struct {
@@ -14,8 +15,11 @@ type Oto struct {
 var oto *Oto
 
 func buildLayout(app *tview.Application, mpv *MPV) *Oto {
+	config := config.NewConfig()
+	ytClient := NewYoutubeClient(config.InvidiousUrl)
+
 	progressBar := NewProgressBar(mpv, app.QueueUpdateDraw)
-	searchLayout := NewSearchLayout(mpv, progressBar.TrackProgressBar, app.SetFocus)
+	searchLayout := NewSearchLayout(mpv, progressBar.TrackProgressBar, app.SetFocus, config, ytClient)
 
 	root := tview.NewFlex().SetDirection(0)
 

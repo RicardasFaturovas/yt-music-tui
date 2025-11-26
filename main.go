@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"ricardasfaturovas/oto-tui/config"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -12,17 +11,11 @@ import (
 
 func main() {
 	setupLog()
-	config.Load()
 
 	tview.Styles.PrimitiveBackgroundColor = tcell.ColorNames["none"]
 	app := tview.NewApplication()
 	mpv := NewMPV()
 	oto = buildLayout(app, mpv)
-
-	root := tview.NewFlex().
-		SetDirection(0).
-		AddItem(oto.pages, 0, 10, true).
-		AddItem(oto.progressBar.container, 0, 1, false)
 
 	defer func() {
 		if mpv.launchCmd.Process != nil {
@@ -30,7 +23,7 @@ func main() {
 		}
 	}()
 
-	if err := app.SetRoot(root, true).EnableMouse(true).EnablePaste(true).Run(); err != nil {
+	if err := app.SetRoot(oto.root, true).EnableMouse(true).EnablePaste(true).Run(); err != nil {
 		panic(err)
 	}
 }
@@ -45,14 +38,4 @@ func setupLog() {
 
 	log.SetOutput(file)
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-}
-
-func center(p tview.Primitive, width, height int) tview.Primitive {
-	return tview.NewFlex().
-		AddItem(nil, 0, 1, false).
-		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(nil, 0, 1, false).
-			AddItem(p, height, 1, false).
-			AddItem(nil, 0, 1, false), width, 1, false).
-		AddItem(nil, 0, 1, false)
 }

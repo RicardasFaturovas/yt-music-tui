@@ -14,7 +14,7 @@ type Oto struct {
 var oto *Oto
 
 func buildLayout(app *tview.Application, mpv *MPV) *Oto {
-	progressBar := NewProgressBar(mpv)
+	progressBar := NewProgressBar(mpv, app.QueueUpdateDraw)
 	searchLayout := NewSearchLayout(mpv, progressBar.TrackProgressBar, app.SetFocus)
 
 	root := tview.NewFlex().SetDirection(0)

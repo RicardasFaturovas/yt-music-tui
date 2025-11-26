@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -27,7 +28,7 @@ func NewMPV() *MPV {
 	}
 
 	for range 50 {
-		if _, err := os.Stat(IPCPath); err == nil {
+		if _, err := net.Dial("unix", IPCPath); err == nil {
 			break
 		}
 		time.Sleep(50 * time.Millisecond)

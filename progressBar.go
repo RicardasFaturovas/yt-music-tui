@@ -11,13 +11,14 @@ import (
 )
 
 type ProgressBar struct {
-	mpv         *MPV
-	currentSong *tview.TextView
-	bar         *tview.TextView
-	container   *tview.Flex
+	mpv               *MPV
+	currentSong       *tview.TextView
+	bar               *tview.TextView
+	container         *tview.Flex
+	updateDrawHandler func(func()) *tview.Application
 }
 
-func NewProgressBar(mpv *MPV) *ProgressBar {
+func NewProgressBar(mpv *MPV, updateDrawHandler func(func()) *tview.Application) *ProgressBar {
 	currentSong := tview.NewTextView().
 		SetTextAlign(tview.AlignCenter).
 		SetText("Test song")
@@ -37,10 +38,11 @@ func NewProgressBar(mpv *MPV) *ProgressBar {
 		SetText("0:00 |" + fill + "| 4:20")
 
 	progressBar := ProgressBar{
-		currentSong: currentSong,
-		bar:         bar,
-		container:   container,
-		mpv:         mpv,
+		currentSong:       currentSong,
+		bar:               bar,
+		container:         container,
+		mpv:               mpv,
+		updateDrawHandler: updateDrawHandler,
 	}
 	return &progressBar
 }
@@ -82,7 +84,7 @@ func (p *ProgressBar) TrackProgressBar(songName string) {
 
 		fill := fmtProgress(currentPosition, width/2)
 
-		oto.app.QueueUpdateDraw(func() {
+		p.updateDrawHandler(func() {
 			p.bar.SetText(fmt.Sprintf("%s |%s| %s", fmtDuration(elapsedTime), fill, fmtDuration(timeLeft)))
 		})
 

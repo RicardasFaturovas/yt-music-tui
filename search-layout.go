@@ -15,11 +15,18 @@ import (
 
 type SearchLayout struct {
 	mpv                *MPV
-	container          *tview.Flex
+	container          *tview.Pages
 	progressBarHandler func(songName string)
+	focusHandler       func(p tview.Primitive) *tview.Application
 }
 
-func NewSearchLayout(mpv *MPV, progressBarHandler func(songName string)) *SearchLayout {
+func NewSearchLayout(
+	mpv *MPV,
+	progressBarHandler func(songName string),
+	focusHandler func(p tview.Primitive) *tview.Application,
+) *SearchLayout {
+	base := tview.NewPages()
+
 	searchTerms := tview.NewInputField()
 	searchTerms.SetLabel("Search terms: ")
 	searchTerms.SetFieldBackgroundColor(tcell.ColorNames["none"])
@@ -48,10 +55,13 @@ func NewSearchLayout(mpv *MPV, progressBarHandler func(songName string)) *Search
 		AddItem(searchRow, 0, 2, true).
 		AddItem(searchResults, 0, 7, false)
 
+	base.AddPage("main", flex, true, true)
+
 	layout := &SearchLayout{
 		mpv:                mpv,
-		container:          flex,
+		container:          base,
 		progressBarHandler: progressBarHandler,
+		focusHandler:       focusHandler,
 	}
 
 	focusableElements := []tview.Primitive{searchTerms, searchButton, searchResults}
@@ -171,11 +181,10 @@ func (s *SearchLayout) createPlaylistHandler(song YoutubeVideo) {
 		case tcell.KeyEnter:
 			playListName := playlistNameInput.GetText()
 			s.addToPlaylist(song, playListName+".playlist")
-			oto.pages.RemovePage("new-playlist")
+			s.container.RemovePage("new-playlist")
 		case tcell.KeyEsc:
-			oto.pages.RemovePage("new-playlist")
+			s.container.RemovePage("new-playlist")
 		}
-
 	})
 }
 
@@ -205,8 +214,8 @@ func (s *SearchLayout) newPlaylistPopup() *tview.InputField {
 		SetBorder(true).
 		SetBorderPadding(1, 0, 2, 2)
 	popup := center(inputField, 60, 5)
-	oto.pages.AddPage("new-playlist", popup, true, true)
-	oto.app.SetFocus(inputField)
+	s.container.AddPage("new-playlist", popup, true, true)
+	s.focusHandler(inputField)
 
 	return inputField
 }

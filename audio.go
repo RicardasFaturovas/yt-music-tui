@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/blang/mpv"
@@ -14,18 +16,9 @@ type MPV struct {
 	client    *mpv.Client
 }
 
-func playAudio(videoId string) {
-	audioURL := "https://www.youtube.com/watch?v=" + videoId
-
-	oto.mpv.client.Loadfile(audioURL, mpv.LoadFileModeReplace)
-}
-
-func togglePause(shouldPause bool) {
-	oto.mpv.client.SetPause(shouldPause)
-}
-
-func createMpvClient() *MPV {
-	launchMpvCmd := exec.Command("mpv", "--input-ipc-server=/tmp/mpvsocket", "--idle")
+func NewMPV() *MPV {
+	IPCPath := "/tmp/mpvsocket"
+	launchMpvCmd := exec.Command("mpv", "--input-ipc-server="+IPCPath, "--idle")
 	launchMpvCmd.Stdout = nil
 	launchMpvCmd.Stderr = nil
 
@@ -33,21 +26,30 @@ func createMpvClient() *MPV {
 		log.Panicln("Error launching mpv: ", err)
 	}
 
-	socketPath := "/tmp/mpv-socket"
-
 	for range 50 {
-		if _, err := os.Stat(socketPath); err == nil {
+		if _, err := os.Stat(IPCPath); err == nil {
 			break
 		}
 		time.Sleep(50 * time.Millisecond)
 	}
 
-	ipcc := mpv.NewIPCClient("/tmp/mpvsocket")
+	ipcc := mpv.NewIPCClient(IPCPath)
 	c := mpv.NewClient(ipcc)
 
 	if err := c.SetProperty("vo", "null"); err != nil {
 		log.Fatalf("failed to set vo: %v", err)
 	}
+
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		<-sigc
+		if launchMpvCmd.Process != nil {
+			launchMpvCmd.Process.Kill()
+		}
+		os.Exit(0)
+	}()
 
 	return &MPV{
 		client:    c,
@@ -55,6 +57,16 @@ func createMpvClient() *MPV {
 	}
 }
 
-func turnOffMpv() {
+func (m *MPV) PlaySong(videoId string) {
+	audioURL := "https://www.youtube.com/watch?v=" + videoId
 
+	m.client.Loadfile(audioURL, mpv.LoadFileModeReplace)
+}
+
+func (m *MPV) TogglePause(shouldPause bool) {
+	m.client.SetPause(shouldPause)
+}
+
+func (m *MPV) GetCurrentSong() (string, error) {
+	return m.client.Filename()
 }

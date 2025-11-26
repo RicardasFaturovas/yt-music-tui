@@ -3,10 +3,8 @@ package main
 import (
 	"log"
 	"os"
-	"os/signal"
 	"path"
 	"ricardasfaturovas/oto-tui/config"
-	"syscall"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -18,27 +16,18 @@ func main() {
 
 	tview.Styles.PrimitiveBackgroundColor = tcell.ColorNames["none"]
 	app := tview.NewApplication()
-	oto = createOto(app)
+	mpv := NewMPV()
+	oto = buildLayout(app, mpv)
 
 	root := tview.NewFlex().
 		SetDirection(0).
 		AddItem(oto.pages, 0, 10, true).
 		AddItem(oto.progressBar.container, 0, 1, false)
-	defer func() {
-		if oto.mpv.launchCmd.Process != nil {
-			oto.mpv.launchCmd.Process.Kill()
-		}
-	}()
 
-	// Catch CTRL+C or kill signals
-	sigc := make(chan os.Signal, 1)
-	signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		<-sigc
-		if oto.mpv.launchCmd.Process != nil {
-			oto.mpv.launchCmd.Process.Kill()
+	defer func() {
+		if mpv.launchCmd.Process != nil {
+			mpv.launchCmd.Process.Kill()
 		}
-		os.Exit(0)
 	}()
 
 	if err := app.SetRoot(root, true).EnableMouse(true).EnablePaste(true).Run(); err != nil {

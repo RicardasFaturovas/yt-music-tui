@@ -11,12 +11,13 @@ import (
 )
 
 type ProgressBar struct {
+	mpv         *MPV
 	currentSong *tview.TextView
 	bar         *tview.TextView
 	container   *tview.Flex
 }
 
-func buildProgressBar() *ProgressBar {
+func NewProgressBar(mpv *MPV) *ProgressBar {
 	currentSong := tview.NewTextView().
 		SetTextAlign(tview.AlignCenter).
 		SetText("Test song")
@@ -39,40 +40,41 @@ func buildProgressBar() *ProgressBar {
 		currentSong: currentSong,
 		bar:         bar,
 		container:   container,
+		mpv:         mpv,
 	}
 	return &progressBar
 }
 
-func updateBar(songName string) {
-	oto.progressBar.currentSong.SetText(songName)
+func (p *ProgressBar) TrackProgressBar(songName string) {
+	p.currentSong.SetText(songName)
 
 	for {
-		playlistCount, _ := oto.mpv.client.GetFloatProperty("playlist-playing-pos")
-		isPaused, pauseErr := oto.mpv.client.Pause()
+		playlistCount, _ := p.mpv.client.GetFloatProperty("playlist-playing-pos")
+		isPaused, pauseErr := p.mpv.client.Pause()
 		if pauseErr != nil {
-			log.Println("Error getting pause/idle")
+			log.Println("Error getting pause")
 		}
 		if isPaused {
 			time.Sleep(1 * time.Second)
 			continue
 		}
 
-		currentProgress, positionErr := oto.mpv.client.Position()
+		currentProgress, positionErr := p.mpv.client.Position()
 		if positionErr != nil {
 			log.Println("Error getting position")
 		}
 
-		duration, durationErr := oto.mpv.client.Duration()
+		duration, durationErr := p.mpv.client.Duration()
 		if durationErr != nil {
 			log.Println("Error getting duration")
 		}
 
-		percent, err := oto.mpv.client.PercentPosition()
+		percent, err := p.mpv.client.PercentPosition()
 		if err != nil {
 			log.Println("Error getting position")
 		}
 
-		_, _, width, _ := oto.progressBar.container.GetRect()
+		_, _, width, _ := p.container.GetRect()
 		elapsedTime := time.Duration(currentProgress * float64(time.Second))
 		timeLeft := time.Duration((duration - currentProgress) * float64(time.Second))
 
@@ -81,7 +83,7 @@ func updateBar(songName string) {
 		fill := fmtProgress(currentPosition, width/2)
 
 		oto.app.QueueUpdateDraw(func() {
-			oto.progressBar.bar.SetText(fmt.Sprintf("%s |%s| %s", fmtDuration(elapsedTime), fill, fmtDuration(timeLeft)))
+			p.bar.SetText(fmt.Sprintf("%s |%s| %s", fmtDuration(elapsedTime), fill, fmtDuration(timeLeft)))
 		})
 
 		if playlistCount < 0 {

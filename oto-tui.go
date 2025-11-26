@@ -7,22 +7,21 @@ import (
 type Oto struct {
 	app         *tview.Application
 	pages       *tview.Pages
-	mpv         *MPV
 	progressBar *ProgressBar
 }
 
 var oto *Oto
 
-func createOto(app *tview.Application) *Oto {
+func buildLayout(app *tview.Application, mpv *MPV) *Oto {
+	progressBar := NewProgressBar(mpv)
+	searchLayout := NewSearchLayout(mpv, progressBar.TrackProgressBar)
+
 	newOto := &Oto{
 		app:         app,
 		pages:       tview.NewPages(),
-		mpv:         createMpvClient(),
-		progressBar: buildProgressBar(),
+		progressBar: progressBar,
 	}
 
-	searchLayout := buildSearchLayout()
-	newOto.pages.AddAndSwitchToPage("search", searchLayout, true)
-
+	newOto.pages.AddAndSwitchToPage("search", searchLayout.container, true)
 	return newOto
 }

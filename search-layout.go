@@ -80,7 +80,7 @@ func NewSearchLayout(
 	})
 
 	flex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		return focusInputCaptureCallback(event, focusableElements)
+		return focusInputCaptureCallback(event, focusableElements, layout.focusHandler)
 	})
 
 	return layout

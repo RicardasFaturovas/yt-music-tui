@@ -35,7 +35,6 @@ func getPreviousFocus(focusableElements []tview.Primitive) *tview.Primitive {
 				previousFocusEl = focusableElements[i-1]
 			}
 		}
-
 	}
 	if previousFocusEl == nil {
 		log.Panicln("Could not find previous focus element")
@@ -43,14 +42,18 @@ func getPreviousFocus(focusableElements []tview.Primitive) *tview.Primitive {
 	return &previousFocusEl
 }
 
-func focusInputCaptureCallback(event *tcell.EventKey, focusableElements []tview.Primitive) *tcell.EventKey {
+func focusInputCaptureCallback(
+	event *tcell.EventKey,
+	focusableElements []tview.Primitive,
+	setFocus func(p tview.Primitive) *tview.Application,
+) *tcell.EventKey {
 	switch event.Key() {
 	case tcell.KeyCtrlN:
 		nextFocusEl := getNextFocus(focusableElements)
-		oto.app.SetFocus(*nextFocusEl)
+		setFocus(*nextFocusEl)
 	case tcell.KeyCtrlP:
 		previousFocusEl := getPreviousFocus(focusableElements)
-		oto.app.SetFocus(*previousFocusEl)
+		setFocus(*previousFocusEl)
 	}
 	return event
 }

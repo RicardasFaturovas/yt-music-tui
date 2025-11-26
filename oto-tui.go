@@ -1,38 +1,31 @@
 package main
 
 import (
-	"github.com/rivo/tview"
 	"ricardasfaturovas/oto-tui/config"
+
+	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
 )
 
 type Oto struct {
-	app         *tview.Application
-	pages       *tview.Pages
-	progressBar *ProgressBar
-	root        *tview.Flex
+	root *tview.Flex
 }
 
-var oto *Oto
-
-func buildLayout(app *tview.Application, mpv *MPV) *Oto {
-	config := config.NewConfig()
-	ytClient := NewYoutubeClient(config.InvidiousUrl)
+func NewOto(app *tview.Application, mpv *MPV, config *config.Config, ytClient *YoutubeClient) *Oto {
+	tview.Styles.PrimitiveBackgroundColor = tcell.ColorNames["none"]
 
 	progressBar := NewProgressBar(mpv, app.QueueUpdateDraw)
 	searchLayout := NewSearchLayout(mpv, progressBar.TrackProgressBar, app.SetFocus, config, ytClient)
-
+	pages := tview.NewPages()
 	root := tview.NewFlex().SetDirection(0)
 
 	newOto := &Oto{
-		app:         app,
-		pages:       tview.NewPages(),
-		progressBar: progressBar,
-		root:        root,
+		root: root,
 	}
 
 	root.
-		AddItem(newOto.pages, 0, 10, true).
-		AddItem(newOto.progressBar.container, 0, 1, false)
-	newOto.pages.AddAndSwitchToPage("search", searchLayout.container, true)
+		AddItem(pages, 0, 10, true).
+		AddItem(progressBar.container, 0, 1, false)
+	pages.AddAndSwitchToPage("search", searchLayout.container, true)
 	return newOto
 }

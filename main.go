@@ -4,18 +4,20 @@ import (
 	"log"
 	"os"
 	"path"
+	"ricardasfaturovas/oto-tui/config"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
 func main() {
 	setupLog()
 
-	tview.Styles.PrimitiveBackgroundColor = tcell.ColorNames["none"]
 	app := tview.NewApplication()
 	mpv := NewMPV()
-	oto = buildLayout(app, mpv)
+	config := config.NewConfig()
+	ytClient := NewYoutubeClient(config.InvidiousUrl)
+
+	oto := NewOto(app, mpv, config, ytClient)
 
 	defer func() {
 		if mpv.launchCmd.Process != nil {

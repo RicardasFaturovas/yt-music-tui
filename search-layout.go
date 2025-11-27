@@ -17,6 +17,7 @@ type SearchLayout struct {
 	mpv                *MPV
 	container          *tview.Pages
 	progressBarHandler func(songName string)
+	app                *tview.Application
 	focusHandler       func(p tview.Primitive) *tview.Application
 	config             *config.Config
 	youtubeClient      *YoutubeClient
@@ -25,7 +26,7 @@ type SearchLayout struct {
 func NewSearchLayout(
 	mpv *MPV,
 	progressBarHandler func(songName string),
-	focusHandler func(p tview.Primitive) *tview.Application,
+	app *tview.Application,
 	config *config.Config,
 	youtubeClient *YoutubeClient,
 ) *SearchLayout {
@@ -54,10 +55,23 @@ func NewSearchLayout(
 	searchResults.SetBorder(true)
 	searchResults.SetTitle("Search results")
 
+	albumCarousel := NewAlbumCarousel(app)
+
+	searchResults.SetChangedFunc(func(node *tview.TreeNode) {
+		if node.GetLevel() == 1 {
+			go albumCarousel.CycleRight()
+		}
+	})
+
+	middleRow := tview.NewFlex().
+		SetDirection(1).
+		AddItem(searchResults, 0, 1, false).
+		AddItem(albumCarousel.container, 0, 1, false)
+
 	flex := tview.NewFlex().
 		SetDirection(0).
 		AddItem(searchRow, 0, 2, true).
-		AddItem(searchResults, 0, 7, false)
+		AddItem(middleRow, 0, 7, false)
 
 	base.AddPage("main", flex, true, true)
 
@@ -65,7 +79,7 @@ func NewSearchLayout(
 		mpv:                mpv,
 		container:          base,
 		progressBarHandler: progressBarHandler,
-		focusHandler:       focusHandler,
+		app:                app,
 		config:             config,
 		youtubeClient:      youtubeClient,
 	}
@@ -80,7 +94,7 @@ func NewSearchLayout(
 	})
 
 	flex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		return focusInputCaptureCallback(event, focusableElements, layout.focusHandler)
+		return focusInputCaptureCallback(event, focusableElements, layout.app.SetFocus)
 	})
 
 	return layout
@@ -220,7 +234,7 @@ func (s *SearchLayout) newPlaylistPopup() *tview.InputField {
 		SetBorderPadding(1, 0, 2, 2)
 	popup := center(inputField, 60, 5)
 	s.container.AddPage("new-playlist", popup, true, true)
-	s.focusHandler(inputField)
+	s.app.SetFocus(inputField)
 
 	return inputField
 }

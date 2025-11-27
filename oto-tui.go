@@ -15,7 +15,7 @@ func NewOto(app *tview.Application, mpv *MPV, config *config.Config, ytClient *Y
 	tview.Styles.PrimitiveBackgroundColor = tcell.ColorNames["none"]
 
 	progressBar := NewProgressBar(mpv, app.QueueUpdateDraw)
-	searchLayout := NewSearchLayout(mpv, progressBar.TrackProgressBar, app.SetFocus, config, ytClient)
+	searchLayout := NewSearchLayout(mpv, progressBar.TrackProgressBar, app, config, ytClient)
 	pages := tview.NewPages()
 	root := tview.NewFlex().SetDirection(0)
 

@@ -15,12 +15,11 @@ import (
 
 type SearchLayout struct {
 	mpv                *MPV
-	container          *tview.Pages
 	progressBarHandler func(songName string)
 	app                *tview.Application
-	focusHandler       func(p tview.Primitive) *tview.Application
 	config             *config.Config
 	youtubeClient      *YoutubeClient
+	container          *tview.Pages
 }
 
 func NewSearchLayout(
@@ -56,6 +55,10 @@ func NewSearchLayout(
 	searchResults.SetTitle("Search results")
 
 	albumCarousel := NewAlbumCarousel(app)
+	visualizer := NewAudioVisualizer(mpv.stdout, app)
+	go func() {
+		visualizer.visualize()
+	}()
 
 	searchResults.SetChangedFunc(func(node *tview.TreeNode) {
 		if node.GetLevel() == 1 {
@@ -63,11 +66,18 @@ func NewSearchLayout(
 		}
 	})
 
+	visual := tview.NewFlex().
+		SetDirection(0).
+		AddItem(albumCarousel.container, 0, 1, false).
+		AddItem(visualizer.container, 0, 1, false)
+
+	visual.SetBorder(true)
+	visual.SetBorderPadding(2, 2, 4, 0)
+
 	middleRow := tview.NewFlex().
 		SetDirection(1).
 		AddItem(searchResults, 0, 1, false).
-		AddItem(albumCarousel.container, 0, 1, false)
-
+		AddItem(visual, 0, 1, false)
 	flex := tview.NewFlex().
 		SetDirection(0).
 		AddItem(searchRow, 0, 2, true).

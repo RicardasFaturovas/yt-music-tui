@@ -1,11 +1,13 @@
 package main
 
 import (
+	"io"
 	"log"
 	"net"
 	"os"
 	"os/exec"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -15,12 +17,28 @@ import (
 type MPV struct {
 	launchCmd *exec.Cmd
 	client    *mpv.Client
+	stdout    io.Reader
 }
 
 func NewMPV() *MPV {
+	lavfiData, err := os.ReadFile("waves.lavfi")
+	if err != nil {
+		log.Fatal(err)
+	}
+	filterGraph := strings.ReplaceAll(string(lavfiData), "\n", "")
+
 	IPCPath := "/tmp/mpvsocket"
-	launchMpvCmd := exec.Command("mpv", "--input-ipc-server="+IPCPath, "--idle")
-	launchMpvCmd.Stdout = nil
+	launchMpvCmd := exec.Command(
+		"mpv",
+		"--no-terminal",
+		"--input-ipc-server="+IPCPath,
+		"--lavfi-complex="+filterGraph,
+		"--vo=tct",
+		"--really-quiet",
+		"--idle",
+	)
+
+	stdout, _ := launchMpvCmd.StdoutPipe()
 	launchMpvCmd.Stderr = nil
 
 	if err := launchMpvCmd.Start(); err != nil {
@@ -37,10 +55,6 @@ func NewMPV() *MPV {
 	ipcc := mpv.NewIPCClient(IPCPath)
 	c := mpv.NewClient(ipcc)
 
-	if err := c.SetProperty("vo", "null"); err != nil {
-		log.Fatalf("failed to set vo: %v", err)
-	}
-
 	sigc := make(chan os.Signal, 1)
 	signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM)
 
@@ -55,6 +69,7 @@ func NewMPV() *MPV {
 	return &MPV{
 		client:    c,
 		launchCmd: launchMpvCmd,
+		stdout:    stdout,
 	}
 }
 

@@ -1,0 +1,3 @@
+[aid1]asplit=2[VIS][AUDIO];
+[VIS]compand,showwaves=size=240x100:colors=#25d3d0:draw=full:mode=line,format=yuv420p[vo];
+[AUDIO]anull[ao]

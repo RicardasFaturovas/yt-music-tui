@@ -4,7 +4,9 @@ import (
 	"log"
 	"os"
 	"path"
-	"ricardasfaturovas/oto-tui/config"
+	"ricardasfaturovas/oto-tui/internal"
+	"ricardasfaturovas/oto-tui/internal/config"
+	"ricardasfaturovas/oto-tui/internal/ui"
 
 	"github.com/rivo/tview"
 )
@@ -13,19 +15,19 @@ func main() {
 	setupLog()
 
 	app := tview.NewApplication()
-	mpv := NewMPV()
+	mpv := internal.NewMPV()
 	config := config.NewConfig()
-	ytClient := NewYoutubeClient(config.InvidiousUrl)
+	ytClient := internal.NewYoutubeClient(config.InvidiousUrl)
 
-	oto := NewOto(app, mpv, config, ytClient)
+	oto := ui.NewOto(app, mpv, config, ytClient)
 
 	defer func() {
-		if mpv.launchCmd.Process != nil {
-			mpv.launchCmd.Process.Kill()
+		if mpv.LaunchCmd.Process != nil {
+			mpv.LaunchCmd.Process.Kill()
 		}
 	}()
 
-	if err := app.SetRoot(oto.root, true).EnableMouse(true).EnablePaste(true).Run(); err != nil {
+	if err := app.SetRoot(oto.Root, true).EnableMouse(true).EnablePaste(true).Run(); err != nil {
 		panic(err)
 	}
 }

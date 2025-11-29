@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"io"
@@ -15,9 +15,9 @@ import (
 )
 
 type MPV struct {
-	launchCmd *exec.Cmd
-	client    *mpv.Client
-	stdout    io.Reader
+	LaunchCmd *exec.Cmd
+	Client    *mpv.Client
+	Stdout    io.Reader
 }
 
 func NewMPV() *MPV {
@@ -67,24 +67,24 @@ func NewMPV() *MPV {
 	}()
 
 	return &MPV{
-		client:    c,
-		launchCmd: launchMpvCmd,
-		stdout:    stdout,
+		Client:    c,
+		LaunchCmd: launchMpvCmd,
+		Stdout:    stdout,
 	}
 }
 
 func (m *MPV) PlaySong(videoId string) {
 	audioURL := "https://www.youtube.com/watch?v=" + videoId
 
-	m.client.Loadfile(audioURL, mpv.LoadFileModeReplace)
-	m.client.SetPause(false)
+	m.Client.Loadfile(audioURL, mpv.LoadFileModeReplace)
+	m.Client.SetPause(false)
 }
 
 func (m *MPV) TogglePause() {
-	p, _ := m.client.Pause()
-	m.client.SetPause(!p)
+	p, _ := m.Client.Pause()
+	m.Client.SetPause(!p)
 }
 
 func (m *MPV) GetCurrentSong() (string, error) {
-	return m.client.Filename()
+	return m.Client.Filename()
 }

@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	"fmt"
@@ -8,17 +8,18 @@ import (
 	"time"
 
 	"github.com/rivo/tview"
+	"ricardasfaturovas/oto-tui/internal"
 )
 
 type ProgressBar struct {
-	mpv               *MPV
+	mpv               *internal.MPV
 	currentSong       *tview.TextView
 	bar               *tview.TextView
 	container         *tview.Flex
 	updateDrawHandler func(func()) *tview.Application
 }
 
-func NewProgressBar(mpv *MPV, updateDrawHandler func(func()) *tview.Application) *ProgressBar {
+func NewProgressBar(mpv *internal.MPV, updateDrawHandler func(func()) *tview.Application) *ProgressBar {
 	currentSong := tview.NewTextView().
 		SetTextAlign(tview.AlignCenter).
 		SetText("Test song")
@@ -51,8 +52,8 @@ func (p *ProgressBar) TrackProgressBar(songName string) {
 	p.currentSong.SetText(songName)
 
 	for {
-		playlistCount, _ := p.mpv.client.GetFloatProperty("playlist-playing-pos")
-		isPaused, pauseErr := p.mpv.client.Pause()
+		playlistCount, _ := p.mpv.Client.GetFloatProperty("playlist-playing-pos")
+		isPaused, pauseErr := p.mpv.Client.Pause()
 		if pauseErr != nil {
 			log.Println("Error getting pause")
 		}
@@ -61,17 +62,17 @@ func (p *ProgressBar) TrackProgressBar(songName string) {
 			continue
 		}
 
-		currentProgress, positionErr := p.mpv.client.Position()
+		currentProgress, positionErr := p.mpv.Client.Position()
 		if positionErr != nil {
 			log.Println("Error getting position")
 		}
 
-		duration, durationErr := p.mpv.client.Duration()
+		duration, durationErr := p.mpv.Client.Duration()
 		if durationErr != nil {
 			log.Println("Error getting duration")
 		}
 
-		percent, err := p.mpv.client.PercentPosition()
+		percent, err := p.mpv.Client.PercentPosition()
 		if err != nil {
 			log.Println("Error getting position")
 		}

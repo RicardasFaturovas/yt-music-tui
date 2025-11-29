@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	"encoding/json"
@@ -6,7 +6,8 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"ricardasfaturovas/oto-tui/config"
+	"ricardasfaturovas/oto-tui/internal"
+	"ricardasfaturovas/oto-tui/internal/config"
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
@@ -14,20 +15,20 @@ import (
 )
 
 type SearchLayout struct {
-	mpv                *MPV
+	mpv                *internal.MPV
 	progressBarHandler func(songName string)
 	app                *tview.Application
 	config             *config.Config
-	youtubeClient      *YoutubeClient
+	youtubeClient      *internal.YoutubeClient
 	container          *tview.Pages
 }
 
 func NewSearchLayout(
-	mpv *MPV,
+	mpv *internal.MPV,
 	progressBarHandler func(songName string),
 	app *tview.Application,
 	config *config.Config,
-	youtubeClient *YoutubeClient,
+	youtubeClient *internal.YoutubeClient,
 ) *SearchLayout {
 	base := tview.NewPages()
 
@@ -55,7 +56,7 @@ func NewSearchLayout(
 	searchResults.SetTitle("Search results")
 
 	albumCarousel := NewAlbumCarousel(app)
-	visualizer := NewAudioVisualizer(mpv.stdout, app)
+	visualizer := NewAudioVisualizer(mpv.Stdout, app)
 	go func() {
 		visualizer.visualize()
 	}()
@@ -146,7 +147,7 @@ func (s *SearchLayout) attachResultTreeHandlers(treeView *tview.TreeView) {
 			treeView.GetRoot().Expand()
 			node.SetExpanded(!node.IsExpanded())
 		} else if node.GetLevel() == 2 {
-			reference := node.GetReference().(YoutubeSong)
+			reference := node.GetReference().(internal.YoutubeSong)
 			if node.GetText() == "Play" {
 				s.playSongHandler(reference)
 			} else if node.GetText() == "Add to playlist" {
@@ -154,17 +155,17 @@ func (s *SearchLayout) attachResultTreeHandlers(treeView *tview.TreeView) {
 			}
 		} else {
 			if node.GetText() == "Create new playlist" {
-				reference := node.GetReference().(YoutubeSong)
+				reference := node.GetReference().(internal.YoutubeSong)
 				s.createPlaylistHandler(reference)
 			} else {
-				reference := node.GetReference().(YoutubeSong)
+				reference := node.GetReference().(internal.YoutubeSong)
 				s.addToPlaylist(reference, node.GetText())
 			}
 		}
 	})
 }
 
-func (s *SearchLayout) playSongHandler(song YoutubeSong) {
+func (s *SearchLayout) playSongHandler(song internal.YoutubeSong) {
 	currentSong, _ := s.mpv.GetCurrentSong()
 	log.Println(song.Title, song.VideoId, currentSong)
 	if strings.Contains(currentSong, song.VideoId) {
@@ -175,7 +176,7 @@ func (s *SearchLayout) playSongHandler(song YoutubeSong) {
 	}
 }
 
-func (s *SearchLayout) loadPlaylistsHandler(target *tview.TreeNode, song YoutubeSong) {
+func (s *SearchLayout) loadPlaylistsHandler(target *tview.TreeNode, song internal.YoutubeSong) {
 	// TODO: Need to figure out better directory management
 	home, _ := os.UserHomeDir()
 	playlistPath := home + "/" + s.config.PlaylistPath
@@ -202,7 +203,7 @@ func (s *SearchLayout) loadPlaylistsHandler(target *tview.TreeNode, song Youtube
 	target.SetExpanded(!target.IsExpanded())
 }
 
-func (s *SearchLayout) createPlaylistHandler(song YoutubeSong) {
+func (s *SearchLayout) createPlaylistHandler(song internal.YoutubeSong) {
 	playlistNameInput := s.newPlaylistPopup()
 
 	playlistNameInput.SetDoneFunc(func(key tcell.Key) {
@@ -217,7 +218,7 @@ func (s *SearchLayout) createPlaylistHandler(song YoutubeSong) {
 	})
 }
 
-func (s *SearchLayout) addToPlaylist(song YoutubeSong, playlistName string) {
+func (s *SearchLayout) addToPlaylist(song internal.YoutubeSong, playlistName string) {
 	home, _ := os.UserHomeDir()
 	fullPath := path.Join(home, s.config.PlaylistPath, playlistName)
 

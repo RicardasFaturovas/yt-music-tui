@@ -1,17 +1,18 @@
-package main
+package ui
 
 import (
-	"ricardasfaturovas/oto-tui/config"
+	"ricardasfaturovas/oto-tui/internal"
+	"ricardasfaturovas/oto-tui/internal/config"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
 type Oto struct {
-	root *tview.Flex
+	Root *tview.Flex
 }
 
-func NewOto(app *tview.Application, mpv *MPV, config *config.Config, ytClient *YoutubeClient) *Oto {
+func NewOto(app *tview.Application, mpv *internal.MPV, config *config.Config, ytClient *internal.YoutubeClient) *Oto {
 	tview.Styles.PrimitiveBackgroundColor = tcell.ColorNames["none"]
 
 	progressBar := NewProgressBar(mpv, app.QueueUpdateDraw)
@@ -20,7 +21,7 @@ func NewOto(app *tview.Application, mpv *MPV, config *config.Config, ytClient *Y
 	root := tview.NewFlex().SetDirection(0)
 
 	newOto := &Oto{
-		root: root,
+		Root: root,
 	}
 
 	root.

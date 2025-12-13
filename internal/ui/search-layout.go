@@ -24,6 +24,11 @@ type SearchLayout struct {
 	container          *tview.Pages
 }
 
+type SearchResult struct {
+	Results []internal.YoutubeSong
+	Err     error
+}
+
 func NewSearchLayout(
 	mpv *internal.MPV,
 	progressBarHandler func(songName string),
@@ -113,34 +118,53 @@ func NewSearchLayout(
 	return layout
 }
 
-func (s *SearchLayout) buildSearchResultTree(searchText string, treeView *tview.TreeView) *tview.TreeNode {
-	results, err := s.youtubeClient.GetSearchResults(searchText)
-	if err != nil {
-		s.newErrorPopup("Error", "Error fetching music from youtube", 5*time.Second)
-	}
-
+func (s *SearchLayout) buildSearchResultTree(
+	searchText string,
+	treeView *tview.TreeView,
+) *tview.TreeNode {
 	root := tview.NewTreeNode(".").
 		SetColor(tcell.ColorNames["none"])
 
-	for _, v := range results {
-		if v.Title != "" {
-			playNode := tview.NewTreeNode("Play")
-			playNode.SetSelectable(true)
-			playNode.SetReference(v)
+	treeView.SetRoot(root)
 
-			playlistNode := tview.NewTreeNode("Add to playlist")
-			playlistNode.SetReference(v)
+	go func() {
+		results, err := s.youtubeClient.GetSearchResults(searchText)
 
-			songNode := tview.NewTreeNode(v.Title)
-			songNode.SetExpanded(false)
-			songNode.AddChild(playNode)
-			songNode.AddChild(playlistNode)
+		s.app.QueueUpdateDraw(func() {
+			if err != nil {
+				s.newErrorPopup(
+					"Error",
+					"Error fetching music from youtube",
+					5*time.Second,
+				)
+				return
+			}
 
-			root.AddChild(songNode)
-		}
-	}
+			root.ClearChildren()
 
-	s.attachResultTreeHandlers(treeView)
+			for _, v := range results {
+				if v.Title == "" {
+					continue
+				}
+
+				playNode := tview.NewTreeNode("Play").
+					SetSelectable(true).
+					SetReference(v)
+
+				playlistNode := tview.NewTreeNode("Add to playlist").
+					SetReference(v)
+
+				songNode := tview.NewTreeNode(v.Title).
+					SetExpanded(false).
+					AddChild(playNode).
+					AddChild(playlistNode)
+
+				root.AddChild(songNode)
+			}
+
+			s.attachResultTreeHandlers(treeView)
+		})
+	}()
 
 	return root
 }

@@ -22,7 +22,7 @@ type ProgressBar struct {
 func NewProgressBar(mpv *internal.MPV, updateDrawHandler func(func()) *tview.Application) *ProgressBar {
 	currentSong := tview.NewTextView().
 		SetTextAlign(tview.AlignCenter).
-		SetText("Test song")
+		SetText("Nothing playing")
 
 	bar := tview.NewTextView().
 		SetTextAlign(tview.AlignCenter)
@@ -36,7 +36,7 @@ func NewProgressBar(mpv *internal.MPV, updateDrawHandler func(func()) *tview.App
 	container.SetTitle("Currently playing")
 
 	bar.
-		SetText("0:00 |" + fill + "| 4:20")
+		SetText("0:00 |" + fill + "| 0:00")
 
 	progressBar := ProgressBar{
 		currentSong:       currentSong,

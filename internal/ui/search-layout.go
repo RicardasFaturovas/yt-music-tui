@@ -9,6 +9,7 @@ import (
 	"ricardasfaturovas/oto-tui/internal"
 	"ricardasfaturovas/oto-tui/internal/config"
 	"strings"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -113,7 +114,10 @@ func NewSearchLayout(
 }
 
 func (s *SearchLayout) buildSearchResultTree(searchText string, treeView *tview.TreeView) *tview.TreeNode {
-	results := s.youtubeClient.GetSearchResults(searchText)
+	results, err := s.youtubeClient.GetSearchResults(searchText)
+	if err != nil {
+		s.newErrorPopup("Error", "Error fetching music from youtube", 5*time.Second)
+	}
 
 	root := tview.NewTreeNode(".").
 		SetColor(tcell.ColorNames["none"])
@@ -249,4 +253,22 @@ func (s *SearchLayout) newPlaylistPopup() *tview.InputField {
 	s.app.SetFocus(inputField)
 
 	return inputField
+}
+
+func (s *SearchLayout) newErrorPopup(title string, description string, timeout time.Duration) {
+	popupId := "error"
+	textView := tview.NewTextView().
+		SetText(description)
+	textView.SetTextAlign(tview.AlignCenter).SetTitle(title).SetBorder(true)
+
+	popup := topRight(textView, 60, 5)
+	s.container.AddPage(popupId, popup, true, true)
+
+	go func() {
+		time.Sleep(timeout)
+		s.app.QueueUpdateDraw(func() {
+			s.container.RemovePage(popupId)
+		})
+	}()
+
 }

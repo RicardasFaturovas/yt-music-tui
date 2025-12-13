@@ -2,6 +2,8 @@ package internal
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -17,6 +19,8 @@ type YoutubeClient struct {
 	baseUrl string
 }
 
+var GetSongsError = errors.New("GetSongsError")
+
 func NewYoutubeClient(baseUrl string) *YoutubeClient {
 	youtubeClient := &http.Client{}
 
@@ -26,21 +30,18 @@ func NewYoutubeClient(baseUrl string) *YoutubeClient {
 	}
 }
 
-func (y *YoutubeClient) GetSearchResults(query string) []YoutubeSong {
+func (y *YoutubeClient) GetSearchResults(query string) ([]YoutubeSong, error) {
 	var results []YoutubeSong
 	err := y.getRequest("/api/v1/search", query, &results)
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	return results
+	return results, err
 }
 
-// TODO: Cleanup error handling
 func (y *YoutubeClient) getRequest(endpoint string, query string, v any) error {
 	req, err := http.NewRequest(http.MethodGet, y.baseUrl+endpoint, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(fmt.Errorf("Building request: %w", err))
+		return GetSongsError
 	}
 
 	q := req.URL.Query()
@@ -48,7 +49,8 @@ func (y *YoutubeClient) getRequest(endpoint string, query string, v any) error {
 	req.URL.RawQuery = q.Encode()
 	res, getErr := y.client.Do(req)
 	if getErr != nil {
-		log.Fatal(getErr)
+		log.Println(fmt.Errorf("Executing request: %w", err))
+		return GetSongsError
 	}
 
 	if res.Body != nil {
@@ -57,13 +59,14 @@ func (y *YoutubeClient) getRequest(endpoint string, query string, v any) error {
 
 	body, readErr := io.ReadAll(res.Body)
 	if readErr != nil {
-		log.Fatal(readErr)
-		return readErr
+		log.Println(fmt.Errorf("Reading response body: %w", err))
+		return GetSongsError
 	}
 
 	jsonErr := json.Unmarshal(body, &v)
 	if jsonErr != nil {
-		log.Fatal(jsonErr)
+		log.Println(fmt.Errorf("Unmarshalling: %w", err))
+		return GetSongsError
 	}
 	return nil
 }

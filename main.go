@@ -3,10 +3,12 @@ package main
 import (
 	"log"
 	"os"
+	"os/signal"
 	"path"
 	"ricardasfaturovas/oto-tui/internal"
 	"ricardasfaturovas/oto-tui/internal/config"
 	"ricardasfaturovas/oto-tui/internal/ui"
+	"syscall"
 
 	"github.com/rivo/tview"
 )
@@ -17,6 +19,10 @@ func main() {
 	app := tview.NewApplication()
 	mpv := internal.NewMPV()
 	config := config.NewConfig()
+	if err := config.Load(); err != nil {
+		log.Println(err)
+	}
+
 	ytClient := internal.NewYoutubeClient(config.InvidiousUrl)
 
 	oto := ui.NewOto(app, mpv, config, ytClient)
@@ -25,6 +31,17 @@ func main() {
 		if mpv.LaunchCmd.Process != nil {
 			mpv.LaunchCmd.Process.Kill()
 		}
+	}()
+
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		<-sigc
+		if mpv.LaunchCmd.Process != nil {
+			mpv.LaunchCmd.Process.Kill()
+		}
+		os.Exit(0)
 	}()
 
 	if err := app.SetRoot(oto.Root, true).EnableMouse(true).EnablePaste(true).Run(); err != nil {

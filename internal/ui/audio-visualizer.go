@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -54,7 +53,6 @@ func (a *AudioVisualizer) visualize() {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		log.Println(line)
 
 		matches := colorRegex.FindAllStringSubmatch(line, -1)
 		for _, m := range matches {

@@ -1,0 +1,4 @@
+[aid1]asplit=2[VIS][AUDIO];
+[VIS]showfreqs=s=240x100:fscale=log:win_size=2048:ascale=log,
+     pad=260:120:(ow-iw)/2:(oh-ih)/2[vo];
+[AUDIO]anull[ao]

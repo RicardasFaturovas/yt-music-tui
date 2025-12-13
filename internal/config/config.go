@@ -2,6 +2,7 @@ package config
 
 import (
 	"cmp"
+	"fmt"
 	"log"
 	"os"
 
@@ -14,22 +15,32 @@ type Config struct {
 }
 
 func NewConfig() *Config {
+	return &Config{}
+}
+
+func defaultConfig() *Config {
+	return &Config{
+		InvidiousUrl: "https://inv.perditum.com",
+		PlaylistPath: "playlists",
+	}
+}
+
+func (c *Config) Load() error {
 	log.Println("Loading config")
+	*c = *defaultConfig()
+
 	home, _ := os.UserHomeDir()
 	xdgConfHome := cmp.Or(os.Getenv("XDG_CONFIG_HOME"), home+"/.config")
 
 	tomlData, err := os.ReadFile(xdgConfHome + "/yt-music-tui/conf.toml")
 	if err != nil {
-		log.Panicln(err)
+		return fmt.Errorf("Read file failed: %w", err)
 	}
-	var c Config
-
 	_, tomlErr := toml.Decode(string(tomlData), &c)
 
 	if tomlErr != nil {
-		log.Panicln("Could not decode config file")
-
+		return fmt.Errorf("Decode Toml failed: %w", err)
 	}
 
-	return &c
+	return nil
 }

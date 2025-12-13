@@ -6,9 +6,7 @@ import (
 	"net"
 	"os"
 	"os/exec"
-	"os/signal"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/blang/mpv"
@@ -21,7 +19,7 @@ type MPV struct {
 }
 
 func NewMPV() *MPV {
-	lavfiData, err := os.ReadFile("waves.lavfi")
+	lavfiData, err := os.ReadFile("bars.lavfi")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -54,17 +52,6 @@ func NewMPV() *MPV {
 
 	ipcc := mpv.NewIPCClient(IPCPath)
 	c := mpv.NewClient(ipcc)
-
-	sigc := make(chan os.Signal, 1)
-	signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM)
-
-	go func() {
-		<-sigc
-		if launchMpvCmd.Process != nil {
-			launchMpvCmd.Process.Kill()
-		}
-		os.Exit(0)
-	}()
 
 	return &MPV{
 		Client:    c,

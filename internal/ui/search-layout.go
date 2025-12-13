@@ -79,6 +79,7 @@ func NewSearchLayout(
 		SetDirection(1).
 		AddItem(searchResults, 0, 1, false).
 		AddItem(visual, 0, 1, false)
+
 	flex := tview.NewFlex().
 		SetDirection(0).
 		AddItem(searchRow, 0, 2, true).

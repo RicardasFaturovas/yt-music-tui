@@ -2,6 +2,7 @@ package ui
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"path"
@@ -213,7 +214,8 @@ func (s *SearchLayout) loadPlaylistsHandler(target *tview.TreeNode, song interna
 	target.ClearChildren()
 	files, err := os.ReadDir(playlistPath)
 	if err != nil {
-		panic(err)
+		log.Println(fmt.Errorf("Reading playlist path: %w", err))
+		s.newErrorPopup("Load playlist error", "Error loading playlists", 3*time.Second)
 	}
 	for _, file := range files {
 		if !file.IsDir() && filepath.Ext(file.Name()) == ".playlist" {
@@ -253,13 +255,15 @@ func (s *SearchLayout) addToPlaylist(song internal.YoutubeSong, playlistName str
 
 	f, err := os.OpenFile(fullPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.Panicln(err)
+		log.Println(fmt.Errorf("Opening playlist file: %w", err))
+		s.newErrorPopup("Playlist error", "Could not add to playlist", 3*time.Second)
 	}
 	defer f.Close()
 
 	enc := json.NewEncoder(f)
 	if err := enc.Encode(song); err != nil {
-		log.Panicln(err)
+		log.Println(fmt.Errorf("Encoding json: %w", err))
+		s.newErrorPopup("Playlist error", "Could not add to playlist", 3*time.Second)
 	}
 }
 

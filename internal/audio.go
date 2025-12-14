@@ -1,10 +1,10 @@
 package internal
 
 import (
+	_ "embed"
 	"io"
 	"log"
 	"net"
-	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -18,12 +18,12 @@ type MPV struct {
 	Stdout    io.Reader
 }
 
+//go:embed lavfi/bars.lavfi
+var fileByte []byte
+
 func NewMPV() *MPV {
-	lavfiData, err := os.ReadFile("bars.lavfi")
-	if err != nil {
-		log.Fatal(err)
-	}
-	filterGraph := strings.ReplaceAll(string(lavfiData), "\n", "")
+
+	filterGraph := strings.ReplaceAll(string(fileByte), "\n", "")
 
 	IPCPath := "/tmp/mpvsocket"
 	launchMpvCmd := exec.Command(

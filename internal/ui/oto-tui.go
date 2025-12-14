@@ -4,7 +4,6 @@ import (
 	"ricardasfaturovas/oto-tui/internal"
 	"ricardasfaturovas/oto-tui/internal/config"
 
-	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -13,7 +12,7 @@ type Oto struct {
 }
 
 func NewOto(app *tview.Application, mpv *internal.MPV, config *config.Config, ytClient *internal.YoutubeClient) *Oto {
-	tview.Styles.PrimitiveBackgroundColor = tcell.ColorNames["none"]
+	loadTheme(config)
 
 	progressBar := NewProgressBar(mpv, app.QueueUpdateDraw)
 	searchLayout := NewSearchLayout(mpv, progressBar.TrackProgressBar, app, config, ytClient)

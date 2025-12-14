@@ -7,8 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rivo/tview"
 	"ricardasfaturovas/oto-tui/internal"
+
+	"github.com/rivo/tview"
 )
 
 type ProgressBar struct {
@@ -29,7 +30,8 @@ func NewProgressBar(mpv *internal.MPV, updateDrawHandler func(func()) *tview.App
 	container := tview.NewFlex().
 		SetDirection(0).
 		AddItem(currentSong, 1, 1, false).
-		AddItem(bar, 1, 1, false)
+		AddItem(bar, 1, 1, false).
+		AddItem(tview.NewBox(), 1, 1, false)
 	_, _, width, _ := container.GetRect()
 	fill := strings.Repeat("━", width*4)
 	container.SetBorder(true)

@@ -41,12 +41,12 @@ func NewSearchLayout(
 
 	searchTerms := tview.NewInputField()
 	searchTerms.SetLabel("Search terms: ")
-	searchTerms.SetFieldBackgroundColor(tcell.ColorNames["none"])
+	searchTerms.SetFieldBackgroundColor(theme.backgroundColor)
 	searchTerms.SetBorder(true)
 
 	searchButton := tview.NewButton("Search")
-	searchButton.SetStyle(tcell.StyleDefault.Background(tcell.ColorNames["none"]))
-	searchButton.SetBackgroundColorActivated(tcell.ColorNames["none"])
+	searchButton.SetStyle(tcell.StyleDefault.Background(theme.backgroundColor))
+	searchButton.SetBackgroundColorActivated(theme.backgroundColor)
 	searchButton.SetBorder(true)
 
 	searchRow := tview.NewFlex().
@@ -124,7 +124,7 @@ func (s *SearchLayout) buildSearchResultTree(
 	treeView *tview.TreeView,
 ) *tview.TreeNode {
 	root := tview.NewTreeNode(".").
-		SetColor(tcell.ColorNames["none"])
+		SetColor(theme.backgroundColor)
 
 	treeView.SetRoot(root)
 
@@ -197,7 +197,6 @@ func (s *SearchLayout) attachResultTreeHandlers(treeView *tview.TreeView) {
 
 func (s *SearchLayout) playSongHandler(song internal.YoutubeSong) {
 	currentSong, _ := s.mpv.GetCurrentSong()
-	log.Println(song.Title, song.VideoId, currentSong)
 	if strings.Contains(currentSong, song.VideoId) {
 		s.mpv.TogglePause()
 	} else {

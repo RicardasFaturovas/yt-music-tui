@@ -18,11 +18,10 @@ type MPV struct {
 	Stdout    io.Reader
 }
 
-//go:embed lavfi/bars.lavfi
+//go:embed lavfi/waves.lavfi
 var fileByte []byte
 
 func NewMPV() *MPV {
-
 	filterGraph := strings.ReplaceAll(string(fileByte), "\n", "")
 
 	IPCPath := "/tmp/mpvsocket"

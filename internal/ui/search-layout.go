@@ -41,12 +41,12 @@ func NewSearchLayout(
 
 	searchTerms := tview.NewInputField()
 	searchTerms.SetLabel("Search terms: ")
-	searchTerms.SetFieldBackgroundColor(theme.backgroundColor)
+	searchTerms.SetFieldBackgroundColor(tcell.Color(config.Theme.BackgroundColor))
 	searchTerms.SetBorder(true)
 
 	searchButton := tview.NewButton("Search")
-	searchButton.SetStyle(tcell.StyleDefault.Background(theme.backgroundColor))
-	searchButton.SetBackgroundColorActivated(theme.backgroundColor)
+	searchButton.SetStyle(tcell.StyleDefault.Background(tcell.Color(config.Theme.BackgroundColor)))
+	searchButton.SetBackgroundColorActivated(tcell.Color(config.Theme.BackgroundColor))
 	searchButton.SetBorder(true)
 
 	searchRow := tview.NewFlex().
@@ -124,7 +124,7 @@ func (s *SearchLayout) buildSearchResultTree(
 	treeView *tview.TreeView,
 ) *tview.TreeNode {
 	root := tview.NewTreeNode(".").
-		SetColor(theme.backgroundColor)
+		SetColor(tcell.Color(s.config.Theme.BackgroundColor))
 
 	treeView.SetRoot(root)
 
